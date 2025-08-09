@@ -1,22 +1,47 @@
 import { UserCard } from "../components/UserCard";
+import type { CardUserProps } from "../libs/CardUserType";
 import { cleanUser } from "../libs/CleanUser";
 import axios from "axios";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+
 export default function RandomUserPage() {
-  const [users, setUsers] = useState("");
+  const [users, setUsers] = useState<CardUserProps>();
   const [isLoading, setIsLoading] = useState(false);
   const [genAmount, setGenAmount] = useState(1);
+  const [isFirstload, setIsFirstload] = useState(true)
+  useEffect(() => {
+    if(isFirstload){
+      setIsFirstload(false);
+      return;
+    }
+    const numbers = JSON.stringify(genAmount);
+    // console.log(srrtasks);
+    localStorage.setItem("tasks",numbers)
+  }, [genAmount]);
+
+  useEffect(() => {
+    const strTasks = localStorage.getItem("tasks");
+    if(strTasks === null){
+      return;
+    }
+    const loadedTasks = JSON.parse(strTasks);
+    setGenAmount(loadedTasks);
+  },[])
+
 
   const generateBtnOnClick = async () => {
     setIsLoading(true);
     const resp = await axios.get(
       `https://randomuser.me/api/?results=${genAmount}`
     );
-    setIsLoading(false);
     const users = resp.data.results;
     //Your code here
     //Process result from api response with map function. Tips use function from /src/libs/CleanUser
     //Then update state with function : setUsers(...)
+    const cleanUsers = users.map((user: any) => cleanUser(user));
+    console.log(cleanUsers);
+    setUsers(cleanUsers);
+    setIsLoading(false);
   };
 
   return (
@@ -38,7 +63,15 @@ export default function RandomUserPage() {
       {isLoading && (
         <p className="display-6 text-center fst-italic my-4">Loading ...</p>
       )}
-      {users && !isLoading && users.map(/*code map rendering UserCard here */)}
+      {users && !isLoading && users.map((user:any) => (
+      <UserCard 
+      key = {user.email}
+      name = {user.name}   
+      imgUrl ={user.imgUrl} 
+      address = {user.address} 
+      email = {user.email}
+      />
+      ))}
     </div>
   );
 }
