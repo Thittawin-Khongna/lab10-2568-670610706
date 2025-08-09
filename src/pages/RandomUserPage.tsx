@@ -1,11 +1,10 @@
 import { UserCard } from "../components/UserCard";
-import type { CardUserProps } from "../libs/CardUserType";
 import { cleanUser } from "../libs/CleanUser";
 import axios from "axios";
 import { useState, useEffect } from "react";
 
 export default function RandomUserPage() {
-  const [users, setUsers] = useState<CardUserProps>();
+  const [users, setUsers] = useState<any>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [genAmount, setGenAmount] = useState(1);
   const [isFirstload, setIsFirstload] = useState(true)
